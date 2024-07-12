@@ -11,9 +11,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({UserNotFoundException.class})
-    protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, "User not found",
+    @ExceptionHandler({PersonNotFoundException.class})
+    protected ResponseEntity<Object> personNotFound(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Person not found",
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+    @ExceptionHandler({VHSNotFoundException.class})
+    protected ResponseEntity<Object> vhsNotFound(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "VHS not found",
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }
