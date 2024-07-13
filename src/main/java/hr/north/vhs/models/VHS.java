@@ -16,6 +16,8 @@ public class VHS {
 
     private int durationInMinutes;
 
+    private boolean taken;
+
     public long getId() {
         return vhsId;
     }
@@ -50,5 +52,13 @@ public class VHS {
 
     public void setDurationInMinutes(int durationInMinutes) {
         this.durationInMinutes = durationInMinutes;
+    }
+
+    public void setTaken(boolean taken) {
+        this.taken = taken;
+    }
+
+    public boolean isTaken() {
+        return taken;
     }
 }

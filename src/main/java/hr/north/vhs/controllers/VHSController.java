@@ -37,6 +37,7 @@ public class VHSController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public VHS create(@RequestBody VHS vhs) {
+        vhs.setTaken(false);
         return vhsRepository.save(vhs);
     }
 

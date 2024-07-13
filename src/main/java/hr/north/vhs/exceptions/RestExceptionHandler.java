@@ -21,4 +21,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, "VHS not found",
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
+
+    @ExceptionHandler({RentalNotFoundException.class})
+    protected ResponseEntity<Object> rentalNotFound(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Rental not found",
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler({VHSAlreadyTakenException.class})
+    protected ResponseEntity<Object> vhsAlreadyTaken(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "VHS already taken",
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 }
