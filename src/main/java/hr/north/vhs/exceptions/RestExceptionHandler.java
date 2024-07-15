@@ -33,4 +33,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, "VHS already taken",
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({UserNameAlreadyTakenException.class})
+    protected ResponseEntity<Object> userNameAlreadyTaken(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Username already in use",
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 }

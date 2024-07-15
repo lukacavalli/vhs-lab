@@ -15,10 +15,6 @@ public class Rental {
     private long personId;
 
     private long vhsId;
-    @Transient
-    private String vhsTitle;
-    @Transient
-    private String userName;
 
     public Date getCreationDate() {
         return creationDate;
@@ -52,19 +48,4 @@ public class Rental {
         this.vhsId = vhsId;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getVhsTitle() {
-        return vhsTitle;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setVhsTitle(String vhsTitle) {
-        this.vhsTitle = vhsTitle;
-    }
 }
