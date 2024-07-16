@@ -1,9 +1,6 @@
 package hr.north.vhs.controllers;
 
-import hr.north.vhs.exceptions.PersonNotFoundException;
-import hr.north.vhs.exceptions.RentalNotFoundException;
-import hr.north.vhs.exceptions.VHSAlreadyTakenException;
-import hr.north.vhs.exceptions.VHSNotFoundException;
+import hr.north.vhs.exceptions.*;
 import hr.north.vhs.models.Person;
 import hr.north.vhs.models.Rental;
 import hr.north.vhs.models.VHS;
@@ -25,7 +22,7 @@ public class RentalController {
 
     private static final Logger logger = LoggerFactory.getLogger(RentalController.class);
 
-    private static final int OVERDUE_DAYS = 7;
+    private static final int ALLOWED_OVERDUE_DAYS = 7;
 
     private static final int FEE_MULTIPLIER = 2;
 
@@ -58,6 +55,11 @@ public class RentalController {
 
         logger.info("Creating rental for personId: {} and vhsId: {}", personId, vhsId);
 
+        if (rental.getCreationDate() == null) {
+            logger.error("Creation date must not be null");
+            throw new CreationDateNullException();
+        }
+
         VHS vhs = vhsRepository.findById(vhsId).orElseThrow(() -> {
             logger.error("VHS not found with id: {}", vhsId);
             return new VHSNotFoundException(vhsId);
@@ -81,18 +83,25 @@ public class RentalController {
         vhsRepository.save(vhs);
         rentalRepository.save(rental);
 
-        Date returnDate = new Date(rental.getCreationDate().getTime() + (1000 * 60 * 60 * 24 * OVERDUE_DAYS));
+        Date returnDate = new Date(rental.getCreationDate().getTime() + (1000 * 60 * 60 * 24 * ALLOWED_OVERDUE_DAYS));
         SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy");
         String formattedDate = formatter.format(returnDate);
 
         logger.info("Rental created successfully for personId: {} and vhsId: {}", personId, vhsId);
         return "Thanks " + person.getUserName() + " for renting the movie " + vhs.getTitle() +
-                ".\nPlease return the movie in " + OVERDUE_DAYS + " days. (" + formattedDate + ") \nAfter that the late fee is "
+                ".\nPlease return the movie in " + ALLOWED_OVERDUE_DAYS + " days. (" + formattedDate + ") \nAfter that the late fee is "
                 + FEE_MULTIPLIER + "€ per day.";
     }
+
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@RequestBody Rental rentalBody, @PathVariable Long id) {
+
         logger.info("Deleting rental with id: {}", id);
+
+        if (rentalBody.getReturnDate() == null) {
+            logger.error("Return date must not be null");
+            throw new ReturnDateNullException();
+        }
 
         Rental rental = rentalRepository.findById(id).orElseThrow(() -> {
             logger.error("Rental not found with id: {}", id);
@@ -109,10 +118,11 @@ public class RentalController {
             return new PersonNotFoundException(rental.getPersonId());
         });
 
+        rental.setReturnDate(rentalBody.getReturnDate());
         vhs.setTaken(false);
         vhsRepository.save(vhs);
 
-        long fee = getFee(rental.getCreationDate(), new Date());
+        long fee = getFee(rental.getCreationDate(), rental.getReturnDate());
 
         rentalRepository.deleteById(id);
 
@@ -122,16 +132,20 @@ public class RentalController {
     }
 
     /**
-     * Returns 0 if the difference in days is less than OVERDUE_DAYS, otherwise returns overdueDays * FEE_MULTIPLIER.
+     * Returns 0 if the difference in days is less than ALLOWED_OVERDUE_DAYS, otherwise returns overdueDays * FEE_MULTIPLIER.
      */
     private static long getFee(Date d1, Date d2) {
         long differenceDays = getDifferenceDays(d1, d2);
-        long overdueDays = Math.max(0, differenceDays - OVERDUE_DAYS);
+        long overdueDays = Math.max(0, differenceDays - ALLOWED_OVERDUE_DAYS);
         return overdueDays * FEE_MULTIPLIER;
     }
 
     private static long getDifferenceDays(Date d1, Date d2) {
         long diff = d2.getTime() - d1.getTime();
+        if (diff < 0) {
+            logger.error("Return date must be after the creation date");
+            throw new InvalidDateException();
+        }
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 }

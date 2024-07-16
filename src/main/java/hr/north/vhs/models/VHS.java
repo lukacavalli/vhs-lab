@@ -1,6 +1,7 @@
 package hr.north.vhs.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class VHS {
@@ -8,6 +9,7 @@ public class VHS {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long vhsId;
 
+    @NotNull
     private String title;
 
     private String genre;

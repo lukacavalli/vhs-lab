@@ -39,4 +39,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, "Username already in use",
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({CreationDateNullException.class})
+    protected ResponseEntity<Object> creationDateNull(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Creation date must not be null",
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({ReturnDateNullException.class})
+    protected ResponseEntity<Object> returnDateNull(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Return date must not be null",
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({InvalidDateException.class})
+    protected ResponseEntity<Object> invalidDate(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "Return date must be after the creation date",
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 }

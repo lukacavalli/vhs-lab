@@ -1,6 +1,7 @@
 package hr.north.vhs.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Person {
@@ -12,8 +13,10 @@ public class Person {
 
     private String lastName;
 
+    @NotNull
     private String userName;
 
+    @NotNull
     private String password;
 
     public long getId() {

@@ -4,11 +4,18 @@ import hr.north.vhs.exceptions.PersonNotFoundException;
 import hr.north.vhs.exceptions.UserNameAlreadyTakenException;
 import hr.north.vhs.models.Person;
 import hr.north.vhs.repos.PersonRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/persons")
@@ -45,7 +52,7 @@ public class PersonController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Person create(@RequestBody Person user) {
+    public Person create(@Valid @RequestBody Person user) {
         logger.info("Creating person with username: {}", user.getUserName());
         if (personRepository.existsByUserName(user.getUserName())) {
             logger.error("Username already taken: {}", user.getUserName());
@@ -53,6 +60,19 @@ public class PersonController {
         }
         return personRepository.save(user);
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        BindingResult result = ex.getBindingResult();
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : result.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        logger.error("Username and password must not be null");
+        return errors;
+    }
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {

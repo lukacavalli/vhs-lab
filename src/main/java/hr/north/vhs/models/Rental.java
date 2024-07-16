@@ -1,6 +1,7 @@
 package hr.north.vhs.models;
 
 import jakarta.persistence.*;
+
 import java.util.Date;
 
 @Entity
@@ -12,6 +13,9 @@ public class Rental {
     @Temporal(TemporalType.DATE)
     private Date creationDate;
 
+    @Temporal(TemporalType.DATE)
+    private Date returnDate;
+
     private long personId;
 
     private long vhsId;
@@ -20,12 +24,20 @@ public class Rental {
         return creationDate;
     }
 
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
     public long getRentalId() {
         return rentalId;
     }
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
     }
 
     public void setRentalId(long rentalId) {
