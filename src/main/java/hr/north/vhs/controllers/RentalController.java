@@ -93,10 +93,10 @@ public class RentalController {
                 + FEE_MULTIPLIER + "€ per day.";
     }
 
-    @DeleteMapping("/{id}")
-    public String delete(@RequestBody Rental rentalBody, @PathVariable Long id) {
+    @PutMapping("/{id}")
+    public String returnRental(@RequestBody Rental rentalBody, @PathVariable Long id) {
 
-        logger.info("Deleting rental with id: {}", id);
+        logger.info("Updating rental with id: {}", id);
 
         if (rentalBody.getReturnDate() == null) {
             logger.error("Return date must not be null");
@@ -121,14 +121,24 @@ public class RentalController {
         rental.setReturnDate(rentalBody.getReturnDate());
         vhs.setTaken(false);
         vhsRepository.save(vhs);
+        rentalRepository.save(rental);
 
         long fee = getFee(rental.getCreationDate(), rental.getReturnDate());
 
-        rentalRepository.deleteById(id);
-
-        logger.info("Rental deleted successfully for id: {}. Late fee: {}€", id, fee);
+        logger.info("Rental updated successfully for id: {}. Late fee: {}€", id, fee);
         return "Thanks " + person.getUserName() + " for returning the movie " + vhs.getTitle()
                 + ".\nThe late fees are: " + fee + "€.\nYou were late " + fee/FEE_MULTIPLIER + " days.";
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        logger.info("Deleting rental with id: {}", id);
+        rentalRepository.findById(id).orElseThrow(() -> {
+            logger.error("Rental not found with id: {}", id);
+            return new RentalNotFoundException(id);
+        });
+        rentalRepository.deleteById(id);
+        logger.info("Rental with id: {} deleted successfully", id);
     }
 
     /**

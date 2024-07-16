@@ -194,9 +194,9 @@
 			"response": []
 		},
 		{
-			"name": "deleteRental",
+			"name": "returnRental",
 			"request": {
-				"method": "DELETE",
+				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
